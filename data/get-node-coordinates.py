@@ -22,6 +22,7 @@ output = np.empty((0,3))
 for i in node_list:
     try:
         node = api.NodeGet(i.astype(int)) 
+        print("Processing node {}".format(i.astype(int)))
     except:
         pass
     output = np.append(output, np.array([[node['id'], node['lat'], node['lon']]]), axis=0
