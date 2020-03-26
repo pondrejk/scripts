@@ -28,4 +28,6 @@ for i in node_list:
     output = np.append(output, np.array([[node['id'], node['lat'], node['lon']]]), axis=0
 
 # save with no scientific notation, zero decimals for the first column
-np.savetxt(args.outdir, output, encoding='utf-8-sig', fmt='%.0f %f %f')
+# note: with multielement format, delimiter needs to be specified there 
+# not in delimiter property
+np.savetxt(args.outdir, output, encoding='utf-8-sig', fmt='%.0f, %f, %f')
