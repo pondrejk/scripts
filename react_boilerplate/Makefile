@@ -33,7 +33,8 @@ copy-files:
 	cp boilerplate-index.js $(NAME)/src/index.js
 
 git-commit:
-	cd $(NAME) && git commit -am"Initial setup of Redux and friends"
+	cd $(NAME) && git add .
+	cd $(NAME) && git commit -m"Initial setup of Redux and friends"
 
 build: create-react-app configure-prettier install-redux install-router install-bootstrap install-styled-components copy-files git-commit
 	@echo "success"
