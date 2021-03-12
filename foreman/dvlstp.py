@@ -2,6 +2,11 @@
 #
 # script atomating tasks for revisiting Foreman development setup
 #
+# requiremnets:
+# pip install GitPython
+# 
+# docker installed and running
+#
 
 import os
 import subprocess
