@@ -1,12 +1,13 @@
-NAME =
+NAME = 'my_project'
+PARENT_DIR = .
 
 help:
 	@echo "react-redux initial setup"
 	@echo "dependencies: npx, jq, spnge"
-	@echo "run: make build NAME=name"
+	@echo "run: make build NAME=name PARENT_DIR=parent_dir"
 
 create-react-app: 
-	npx create-react-app $(NAME) --use-npm
+	/usr/bin/npx create-react-app $(NAME) --use-npm
 
 configure-prettier:
 	cd $(NAME) && npm install husky lint-staged prettier && jq -s '.[0] * .[1]' package.json ../prettier-config.json | sponge package.json
@@ -33,8 +34,10 @@ copy-files:
 	cp boilerplate-index.js $(NAME)/src/index.js
 
 git-commit:
-	cd $(NAME) && git add .
-	cd $(NAME) && git commit -m"Initial setup of Redux and friends"
+	mv -r $(NAME) $(PARENT_DIR)/.
+	cd $(PARENT_DIR)/$(NAME) && git init 
+	cd $(PARENT_DIR)/$(NAME) && git add .
+	cd $(PARENT_DIR)/$(NAME) && git commit -m"Initial setup of Redux and friends"
 
-build: create-react-app configure-prettier install-redux install-router install-bootstrap install-styled-components copy-files git-commit
+build:  create-react-app configure-prettier install-redux install-router install-bootstrap install-styled-components copy-files git-commit
 	@echo "success"
