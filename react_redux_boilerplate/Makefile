@@ -11,6 +11,7 @@ create-react-app:
 
 configure-prettier:
 	cd $(NAME) && npm install husky lint-staged prettier && jq -s '.[0] * .[1]' package.json ../prettier-config.json | sponge package.json
+	cd $(NAME) && /usr/bin/npx husky add .husky/pre-commit "npx lint-staged"
 
 install-bootstrap:
 	cd $(NAME) && npm install react-bootstrap bootstrap
