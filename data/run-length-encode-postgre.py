@@ -13,7 +13,6 @@ rleFrameData = []
 
 def rle_encode(row):
     runs = []
-    values = []
     run = []
     speeds = row[2:]
 
@@ -34,9 +33,9 @@ def rle_encode(row):
     rleFrameData.append([row[0], row[1], output])
 
 
-user = ' '
-database = ' '
-table = "w01_d1"
+user = ''
+database = ''
+table = ''
 
 engine = create_engine(f'postgresql://{user}@localhost:5432/{database}')
 df = pd.read_sql_query(f'select * from "{table}_hourly"',con=engine)
@@ -44,4 +43,3 @@ df = pd.read_sql_query(f'select * from "{table}_hourly"',con=engine)
 df.apply(rle_encode, axis=1, raw=False, result_type=None)
 rleFrame = pd.DataFrame(rleFrameData, columns = ['start_node', 'end_node', table])
 rleFrame.to_sql(f'{table}_rle', con=engine, if_exists='fail', method=None)
-
