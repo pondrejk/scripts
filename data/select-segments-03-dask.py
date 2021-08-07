@@ -12,21 +12,18 @@ paralellization with dask
 import argparse
 import os
 import glob
-import pandas as pd
 import time
-from functools import reduce
 import dask.dataframe as dd
 from dask.diagnostics import ProgressBar
 
-parser = argparse.ArgumentParser(description='Get unique OSM nodes')
+parser = argparse.ArgumentParser(description='Extract street segments')
 parser.add_argument('nodePairs', type=os.path.abspath, help='List of points to select')
 parser.add_argument('indir', type=os.path.abspath, help='Input CSV')
 parser.add_argument('outdir', type=os.path.abspath, help='Output CSVs')
 args = parser.parse_args()
-
 suffix = 'brno'
 
-# list of what I want to find
+# list of what is searched
 nodePairs = dd.read_csv(args.nodePairs, header=None)
 nodePairs.set_index([0])
 
@@ -43,7 +40,7 @@ for i in range(2016):
     dtype[i] = 'int64'
 
 for file in filenames:
-    chunks = dd.read_csv(file, header=None, dtype=dtype) #blocksize calculated automatically
+    chunks = dd.read_csv(file, header=None, dtype=dtype) # blocksize calculated automatically
     output = get_matched_segments(chunks)
     with ProgressBar():
         output = output.compute(num_workers=8)

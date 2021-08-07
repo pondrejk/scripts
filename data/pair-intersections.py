@@ -9,7 +9,7 @@ import glob
 import pandas as pd
 import time
 
-parser = argparse.ArgumentParser(description='Get unique OSM nodes')
+parser = argparse.ArgumentParser(description='Get pair intersections')
 parser.add_argument('indir', type=os.path.abspath, help='Input CSV')
 parser.add_argument('outdir', type=os.path.abspath, help='Output CSVs')
 args = parser.parse_args()

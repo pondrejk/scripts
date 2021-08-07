@@ -8,7 +8,6 @@ import argparse
 import os
 import numpy as np
 
-
 parser = argparse.ArgumentParser(description='Get unique OSM nodes')
 parser.add_argument('indir', type=os.path.abspath, help='Input CSV')
 parser.add_argument('outdir', type=os.path.abspath, help='Output CSVs')
