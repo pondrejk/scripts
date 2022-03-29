@@ -7,7 +7,7 @@ help:
 	@echo "run: make build NAME=name PARENT_DIR=parent_dir"
 
 create-react-app: 
-	/usr/bin/npx create-react-app $(NAME) --use-npm
+	/usr/bin/npx create-react-app $(NAME) --use-npm --template typescript
 
 configure-prettier:
 	cd $(NAME) && npm install husky lint-staged prettier && jq -s '.[0] * .[1]' package.json ../prettier-config.json | sponge package.json
