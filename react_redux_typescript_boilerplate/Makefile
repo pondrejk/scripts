@@ -18,7 +18,7 @@ install-bootstrap:
 	cd $(NAME) && npm install react-bootstrap bootstrap --legacy-peer-deps
 
 install-redux:
-	cd $(NAME) && npm install redux react-redux --legacy-peer-deps
+	cd $(NAME) && npm install redux react-redux @reduxjs/toolkit redux-devtools-extension --legacy-peer-deps
 
 install-router:
 	cd $(NAME) && npm install react-router-dom --legacy-peer-deps
@@ -28,12 +28,11 @@ install-styled-components:
 
 copy-files:
 	mkdir -p  $(NAME)/src/components
-	mkdir -p $(NAME)/src/actions
-	mkdir -p $(NAME)/src/reducers
-	cp boilerplate-action.js $(NAME)/src/actions/index.tsx
-	cp boilerplate-reducer.js $(NAME)/src/reducers/index.tsx
-	cp boilerplate-app.js $(NAME)/src/App.tsx
-	cp boilerplate-index.js $(NAME)/src/index.tsx
+	mkdir -p $(NAME)/src/app
+	cp boilerplate-store.ts $(NAME)/src/app/store.tsx
+	cp boilerplate-hooks.ts $(NAME)/src/app/hoosk.tsx
+	cp boilerplate-app.tsx $(NAME)/src/App.tsx
+	cp boilerplate-index.tsx $(NAME)/src/index.tsx
 
 git-commit:
 	mv $(NAME) $(PARENT_DIR)/.
