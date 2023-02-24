@@ -30,12 +30,12 @@ copy-files:
 	mkdir -p  $(NAME)/src/components
 	mkdir -p $(NAME)/src/app
 	cp boilerplate-store.ts $(NAME)/src/app/store.tsx
-	cp boilerplate-hooks.ts $(NAME)/src/app/hoosk.tsx
+	cp boilerplate-hooks.ts $(NAME)/src/app/hooks.tsx
 	cp boilerplate-app.tsx $(NAME)/src/App.tsx
 	cp boilerplate-index.tsx $(NAME)/src/index.tsx
 
 git-commit:
-	mv $(NAME) $(PARENT_DIR)/.
+	mv $(NAME) $(PARENT_DIR)
 	cd $(PARENT_DIR)/$(NAME) && git init 
 	cd $(PARENT_DIR)/$(NAME) && git add .
 	cd $(PARENT_DIR)/$(NAME) && git commit -m"Initial setup of Redux and friends"
