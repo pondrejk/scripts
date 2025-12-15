@@ -5,7 +5,7 @@
 # requiremnets:
 # pip install GitPython
 # 
-# docker installed and running
+# podman installed and running
 #
 
 import os
@@ -40,7 +40,7 @@ class color:
 def start_db():
     """Start the database in Docker container"""
     print(color.GREEN + "Starting database container {}".format(DB_NAME) + color.END)
-    subprocess.run('docker start {}'.format(DB_NAME), shell=True, check=True)
+    subprocess.run('podman start {}'.format(DB_NAME), shell=True, check=True)
     print("OK")
 
 def update_repos():
@@ -71,7 +71,7 @@ def package_update():
     subprocess.run('bundle update', shell=True, check=True)
     print("OK")
     print(color.GREEN + "Updating npm modules" + color.END)
-    subprocess.run('npm update', shell=True, check=True)
+    subprocess.run('npm update --force', shell=True, check=True)
     print("OK")
 
 def db_actions():
