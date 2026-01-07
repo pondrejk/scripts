@@ -38,6 +38,37 @@ class GitRemoteUpdater:
         self.ssh_user = ssh_user
         self.is_remote = remote_host is not None
 
+    def _execute_with_retry(self, repo_path: Path, cmd: List[str]) -> tuple[bool, str]:
+        """Execute a command and retry once if dubious ownership error occurs."""
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            return True, result.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            error_msg = e.stderr.strip()
+
+            # Handle dubious ownership error
+            if "dubious ownership" in error_msg:
+                print("  ⚠️  Detected dubious ownership, adding to safe.directory...")
+
+                # Add to safe.directory
+                if self.is_remote:
+                    ssh_host = f"{self.ssh_user}@{self.remote_host}" if self.ssh_user else self.remote_host
+                    safe_dir_cmd = ["ssh", ssh_host,
+                                   f"git config --global --add safe.directory '{repo_path}'"]
+                else:
+                    safe_dir_cmd = ["git", "config", "--global", "--add", "safe.directory",
+                                   str(repo_path.resolve())]
+
+                try:
+                    subprocess.run(safe_dir_cmd, capture_output=True, text=True, check=True)
+                    # Retry the original command
+                    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                    return True, result.stdout.strip()
+                except subprocess.CalledProcessError as retry_error:
+                    return False, retry_error.stderr.strip()
+
+            return False, error_msg
+
     def run_git_command(self, repo_path: Path, command: List[str]) -> tuple[bool, str]:
         """Run a git command in the specified repository (local or remote via SSH)."""
         if self.is_remote:
@@ -45,31 +76,12 @@ class GitRemoteUpdater:
             ssh_host = f"{self.ssh_user}@{self.remote_host}" if self.ssh_user else self.remote_host
             # Escape quotes in git command for remote execution
             git_cmd = " ".join([f"'{arg}'" if " " in arg else arg for arg in command])
-            ssh_command = ["ssh", ssh_host, f"cd '{repo_path}' && git {git_cmd}"]
-
-            try:
-                result = subprocess.run(
-                    ssh_command,
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                return True, result.stdout.strip()
-            except subprocess.CalledProcessError as e:
-                return False, e.stderr.strip()
+            cmd = ["ssh", ssh_host, f"cd '{repo_path}' && git {git_cmd}"]
         else:
             # Local execution
-            try:
-                result = subprocess.run(
-                    ["git"] + command,
-                    cwd=repo_path,
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                return True, result.stdout.strip()
-            except subprocess.CalledProcessError as e:
-                return False, e.stderr.strip()
+            cmd = ["git"] + command
+
+        return self._execute_with_retry(repo_path, cmd)
 
     def get_remote_url(self, repo_path: Path, remote: str = "origin") -> str:
         """Get the URL of a remote."""
@@ -154,7 +166,7 @@ class GitRemoteUpdater:
         # Get current origin URL
         original_url = self.get_remote_url(repo_path, "origin")
         if not original_url:
-            print(f"  ⚠️  Warning: No 'origin' remote found, skipping")
+            print("  ⚠️  Warning: No 'origin' remote found, skipping")
             return False
 
         print(f"  Current origin: {original_url}")
@@ -163,7 +175,7 @@ class GitRemoteUpdater:
         upstream_url = self.get_remote_url(repo_path, "upstream")
         if upstream_url:
             print(f"  ⚠️  Warning: 'upstream' remote already exists: {upstream_url}")
-            print(f"  Skipping this repository to avoid conflicts")
+            print("  Skipping this repository to avoid conflicts")
             return False
 
         # Build fork URL
@@ -177,7 +189,7 @@ class GitRemoteUpdater:
         print(f"  New upstream: {original_url}")
 
         if self.dry_run:
-            print(f"  ✓ Would update remotes (dry run mode)")
+            print("  ✓ Would update remotes (dry run mode)")
             return True
 
         # Rename origin to upstream
@@ -197,7 +209,7 @@ class GitRemoteUpdater:
         # Verify the changes
         success, output = self.run_git_command(repo_path, ["remote", "-v"])
         if success:
-            print(f"  ✓ Successfully updated remotes:")
+            print("  ✓ Successfully updated remotes:")
             for line in output.split('\n'):
                 print(f"    {line}")
 
@@ -347,18 +359,18 @@ Examples:
         sys.exit(1)
 
     print(f"{'=' * 60}")
-    print(f"Git Remote Updater")
+    print("Git Remote Updater")
     print(f"Fork owner: {args.fork_user}")
     print(f"Repositories to update: {len(repos)}")
     if args.remote_host:
         print(f"Remote host: {args.remote_host}")
-        print(f"Execution mode: SSH (remote)")
+        print("Execution mode: SSH (remote)")
     else:
-        print(f"Execution mode: Local")
+        print("Execution mode: Local")
     if args.url_format:
         print(f"URL format: {args.url_format.upper()}")
     else:
-        print(f"URL format: auto-detect from original URL")
+        print("URL format: auto-detect from original URL")
     if args.dry_run:
         print("Mode: DRY RUN (no changes will be made)")
     print(f"{'=' * 60}")
@@ -376,7 +388,7 @@ Examples:
             failed_count += 1
 
     print(f"\n{'=' * 60}")
-    print(f"Summary:")
+    print("Summary:")
     print(f"  ✓ Successfully updated: {success_count}")
     print(f"  ❌ Failed or skipped: {failed_count}")
     print(f"{'=' * 60}")
